@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniTools — 100 Web Utilities Suite</title>
+  <style>
+    /* RESET & ESSENTIAL STYLES */
+    :root {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.05), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --radius: 12px;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    [data-theme="dark"] {
+      --bg-main: #0f172a;
+      --bg-card: #1e293b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --border: #334155;
+      --accent: #3b82f6;
+      --accent-hover: #60a5fa;
+      --shadow: 0 4px 6px -1px rgba(0,0,0,0.3);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: var(--font); }
+    body { background-color: var(--bg-main); color: var(--text-main); display: flex; height: 100vh; overflow: hidden; }
+
+    /* LAYOUT: SIDEBAR */
+    aside {
+      width: 280px;
+      background: var(--bg-card);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      padding: 1.25rem;
+      gap: 1rem;
+      z-index: 10;
+    }
+
+    .brand { font-size: 1.25rem; font-weight: 700; color: var(--accent); display: flex; align-items: center; justify-content: space-between; }
+    .badge { font-size: 0.75rem; background: var(--accent); color: white; padding: 2px 8px; border-radius: 12px; }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.6rem 0.8rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-main);
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .nav-categories { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.3rem; }
+    .cat-btn {
+      padding: 0.5rem 0.8rem;
+      border-radius: 6px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      text-align: left;
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      justify-content: space-between;
+      transition: all 0.2s;
+    }
+    .cat-btn:hover, .cat-btn.active { background: var(--bg-main); color: var(--accent); font-weight: 600; }
+
+    /* LAYOUT: MAIN CONTENT */
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    header {
+      padding: 1rem 2rem;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .header-actions { display: flex; gap: 0.5rem; }
+    .theme-toggle {
+      background: none;
+      border: 1px solid var(--border);
+      padding: 0.4rem 0.8rem;
+      border-radius: 6px;
+      color: var(--text-main);
+      cursor: pointer;
+    }
+
+    .content-area { flex: 1; overflow-y: auto; padding: 2rem; }
+
+    /* TOOL GRID & CARDS */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+    
+    .tool-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 0.5rem;
+      position: relative;
+    }
+    .tool-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--accent); }
+    .tool-card h3 { font-size: 0.95rem; display: flex; justify-content: space-between; }
+    .tool-card p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.3; }
+
+    /* WORKSPACE (TOOL WORKAREA) */
+    .workspace {
+      display: none;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .workspace.active { display: block; }
+    .back-btn {
+      margin-bottom: 1rem;
+      background: none;
+      border: none;
+      color: var(--accent);
+      cursor: pointer;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* COMPONENT STYLES FOR TOOLS */
+    .form-group { margin-bottom: 1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label { font-size: 0.85rem; font-weight: 600; }
+    .form-row { display: flex; gap: 0.5rem; }
+    input[type="text"], input[type="number"], input[type="color"], textarea, select {
+      width: 100%;
+      padding: 0.65rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--bg-main);
+      color: var(--text-main);
+      outline: none;
+    }
+    .btn {
+      padding: 0.65rem 1.2rem;
+      background: var(--accent);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+    }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--border); color: var(--text-main); }
+    .btn-secondary:hover { background: var(--text-muted); color: white; }
+    
+    .result-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-main);
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      word-break: break-all;
+      position: relative;
+    }
+    .copy-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--text-main);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside>
+    <div class="brand">
+      <span>⚡ OmniTools</span>
+      <span class="badge" id="toolCountBadge">0 Tools</span>
+    </div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="Cari tool... (Ctrl+/)" oninput="filterTools()">
+    </div>
+    <div class="nav-categories" id="categoryList"></div>
+  </aside>
+
+  <!-- MAIN -->
+  <main>
+    <header>
+      <h2 id="currentCategoryTitle">Semua Tools</h2>
+      <div class="header-actions">
+        <button class="theme-toggle" onclick="toggleTheme()">🌙 Mode Light/Dark</button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- GRID VIEW -->
+      <div id="dashboardView" class="grid"></div>
+
+      <!-- WORKSPACE VIEW -->
+      <div id="workspaceView" class="workspace">
+        <button class="back-btn" onclick="closeWorkspace()">← Kembali ke Daftar Tool</button>
+        <h2 id="toolTitle" style="margin-bottom: 1rem;">Nama Tool</h2>
+        <div id="toolInteractiveArea"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    /* ==========================================================================
+       DATA TOOLS SUITE (Kategori: Calculator, Converter, Text, Color, Dev, Random, Productivity, Game)
+       ========================================================================== */
+    const categories = ["Semua", "Favorit", "Calculator", "Converter", "Text Tools", "Color Tools", "Developer", "Random", "Productivity", "Mini Games"];
+    let favorites = JSON.parse(localStorage.getItem('omni_favs') || '[]');
+
+    const tools = [
+      // --- CALCULATOR ---
+      {
+        id: "calc-standard", name: "Standard Calculator", cat: "Calculator", desc: "Kalkulator sederhana untuk operasi aritmatika dasar.",
+        render: () => `
+          <div class="form-group"><input type="text" id="stdCalcDisplay" readonly style="text-align:right; font-size:1.5rem;" value="0"></div>
+          <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem;">
+            <button class="btn btn-secondary" onclick="calcInput('C')">C</button>
+            <button class="btn btn-secondary" onclick="calcInput('(')">(</button>
+            <button class="btn btn-secondary" onclick="calcInput(')')">)</button>
+            <button class="btn" onclick="calcInput('/')">/</button>
+            <button class="btn btn-secondary" onclick="calcInput('7')">7</button>
+            <button class="btn btn-secondary" onclick="calcInput('8')">8</button>
+            <button class="btn btn-secondary" onclick="calcInput('9')">9</button>
+            <button class="btn" onclick="calcInput('*')">×</button>
+            <button class="btn btn-secondary" onclick="calcInput('4')">4</button>
+            <button class="btn btn-secondary" onclick="calcInput('5')">5</button>
+            <button class="btn btn-secondary" onclick="calcInput('6')">6</button>
+            <button class="btn" onclick="calcInput('-')">-</button>
+            <button class="btn btn-secondary" onclick="calcInput('1')">1</button>
+            <button class="btn btn-secondary" onclick="calcInput('2')">2</button>
+            <button class="btn btn-secondary" onclick="calcInput('3')">3</button>
+            <button class="btn" onclick="calcInput('+')">+</button>
+            <button class="btn btn-secondary" onclick="calcInput('0')">0</button>
+            <button class="btn btn-secondary" onclick="calcInput('.')">.</button>
+            <button class="btn" style="grid-column: span 2;" onclick="calcExec()">=</button>
+          </div>`
+      },
+      {
+        id: "bmi-calc", name: "BMI Calculator", cat: "Calculator", desc: "Hitung Indeks Massa Tubuh (BMI) dan kategori berat badan.",
+        render: () => `
+          <div class="form-group"><label>Berat Badan (kg)</label><input type="number" id="bmiW" placeholder="65"></div>
+          <div class="form-group"><label>Tinggi Badan (cm)</label><input type="number" id="bmiH" placeholder="170"></div>
+          <button class="btn" onclick="runBmi()">Hitung BMI</button>
+          <div class="result-box" id="bmiRes">Hasil akan tampil di sini.</div>`
+      },
+      {
+        id: "age-calc", name: "Kalkulator Umur", cat: "Calculator", desc: "Hitung umur presisi dalam Tahun, Bulan, dan Hari.",
+        render: () => `
+          <div class="form-group"><label>Tanggal Lahir</label><input type="date" id="ageDob"></div>
+          <button class="btn" onclick="runAge()">Hitung Umur</button>
+          <div class="result-box" id="ageRes">Pilih tanggal lahir.</div>`
+      },
+      {
+        id: "discount-calc", name: "Kalkulator Diskon", cat: "Calculator", desc: "Hitung jumlah potongan harga dan total pembayaran akhir.",
+        render: () => `
+          <div class="form-group"><label>Harga Awal (Rp)</label><input type="number" id="discP" placeholder="150000"></div>
+          <div class="form-group"><label>Diskon (%)</label><input type="number" id="discD" placeholder="20"></div>
+          <button class="btn" onclick="runDiscount()">Hitung Diskon</button>
+          <div class="result-box" id="discRes">Hasil akan tampil di sini.</div>`
+      },
+      {
+        id: "split-bill", name: "Split Bill Calculator", cat: "Calculator", desc: "Bagi tagihan makan bersama teman termasuk pajak & tip.",
+        render: () => `
+          <div class="form-group"><label>Total Tagihan (Rp)</label><input type="number" id="sbTotal"></div>
+          <div class="form-group"><label>Jumlah Orang</label><input type="number" id="sbPeople" value="2"></div>
+          <div class="form-group"><label>Tip (%)</label><input type="number" id="sbTip" value="5"></div>
+          <button class="btn" onclick="runSplitBill()">Hitung Per Orang</button>
+          <div class="result-box" id="sbRes">Hasil akan tampil di sini.</div>`
+      },
+      {
+        id: "percent-calc", name: "Kalkulator Persentase", cat: "Calculator", desc: "Hitung persentase dari nilai X terhadap Y.",
+        render: () => `
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label>Berapa %</label><input type="number" id="pVal1"></div>
+            <div class="form-group" style="flex:1;"><label>Dari nilai</label><input type="number" id="pVal2"></div>
+          </div>
+          <button class="btn" onclick="runPercent()">Hitung</button>
+          <div class="result-box" id="pRes">Hasil akan tampil di sini.</div>`
+      },
+
+      // --- CONVERTER ---
+      {
+        id: "length-conv", name: "Konverter Panjang", cat: "Converter", desc: "Konversi unit panjang (Meter, KM, CM, Inci, Kaki, Mil).",
+        render: () => `
+          <div class="form-group"><label>Nilai</label><input type="number" id="lVal" value="1" oninput="runLength()"></div>
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label>Dari</label>
+              <select id="lFrom" onchange="runLength()"><option value="m">Meter</option><option value="km">Kilometer</option><option value="cm">Centimeter</option><option value="inch">Inch</option><option value="ft">Feet</option></select>
+            </div>
+            <div class="form-group" style="flex:1;"><label>Ke</label>
+              <select id="lTo" onchange="runLength()"><option value="cm">Centimeter</option><option value="m">Meter</option><option value="km">Kilometer</option><option value="inch">Inch</option><option value="ft">Feet</option></select>
+            </div>
+          </div>
+          <div class="result-box" id="lRes">Hasil konversi...</div>`
+      },
+      {
+        id: "temp-conv", name: "Konverter Suhu", cat: "Converter", desc: "Ubah temperatur Celcius, Fahrenheit, dan Kelvin.",
+        render: () => `
+          <div class="form-group"><label>Suhu (Celcius)</label><input type="number" id="tCel" value="30" oninput="runTemp()"></div>
+          <div class="result-box" id="tRes">Hasil konversi...</div>`
+      },
+      {
+        id: "num-base-conv", name: "Binary / Hex / Decimal", cat: "Converter", desc: "Konversi basis angka (Biner, Desimal, Hexadesimal).",
+        render: () => `
+          <div class="form-group"><label>Angka Desimal</label><input type="number" id="numDec" value="255" oninput="runNumBase()"></div>
+          <div class="result-box" id="numBaseRes">Hasil konversi...</div>`
+      },
+      {
+        id: "byte-conv", name: "Byte Data Converter", cat: "Converter", desc: "Hitung konversi data dari Byte, KB, MB, GB ke TB.",
+        render: () => `
+          <div class="form-group"><label>Ukuran (Megabyte / MB)</label><input type="number" id="mbVal" value="1024" oninput="runByte()"></div>
+          <div class="result-box" id="byteRes">Hasil konversi...</div>`
+      },
+      {
+        id: "roman-conv", name: "Roman Numeral Converter", cat: "Converter", desc: "Ubah Angka Biasa ke Angka Romawi dan sebaliknya.",
+        render: () => `
+          <div class="form-group"><label>Angka Desimal (1 - 3999)</label><input type="number" id="romVal" value="2026" oninput="runRoman()"></div>
+          <div class="result-box" id="romRes">Hasil konversi...</div>`
+      },
+
+      // --- TEXT TOOLS ---
+      {
+        id: "word-counter", name: "Word & Char Counter", cat: "Text Tools", desc: "Hitung jumlah kata, karakter, dan estimasi waktu baca.",
+        render: () => `
+          <div class="form-group"><textarea id="wcInput" rows="6" placeholder="Ketik teks di sini..." oninput="runWc()"></textarea></div>
+          <div class="result-box" id="wcRes">Kata: 0 | Karakter: 0 | Waktu Baca: 0 mtk</div>`
+      },
+      {
+        id: "case-converter", name: "Case Converter", cat: "Text Tools", desc: "Ubah format huruf (UPPERCASE, lowercase, Title Case, camelCase).",
+        render: () => `
+          <div class="form-group"><textarea id="caseInput" rows="5" placeholder="Masukkan teks..."></textarea></div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn" onclick="runCase('upper')">UPPERCASE</button>
+            <button class="btn" onclick="runCase('lower')">lowercase</button>
+            <button class="btn" onclick="runCase('title')">Title Case</button>
+            <button class="btn" onclick="runCase('camel')">camelCase</button>
+          </div>`
+      },
+      {
+        id: "lorem-gen", name: "Lorem Ipsum Generator", cat: "Text Tools", desc: "Buat teks placeholder dummy untuk proyek desain.",
+        render: () => `
+          <div class="form-group"><label>Jumlah Paragraf</label><input type="number" id="loremCount" value="3" min="1" max="10"></div>
+          <button class="btn" onclick="runLorem()">Generate Text</button>
+          <div class="result-box" id="loremRes">Hasil akan tampil di sini.</div>`
+      },
+      {
+        id: "pwd-gen", name: "Password Generator", cat: "Text Tools", desc: "Buat kata sandi acak aman yang sulit diretas.",
+        render: () => `
+          <div class="form-group"><label>Panjang Karakter: <span id="pwdLenVal">16</span></label>
+            <input type="range" id="pwdLen" min="6" max="32" value="16" oninput="document.getElementById('pwdLenVal').innerText=this.value">
+          </div>
+          <button class="btn" onclick="runPwdGen()">Generate Password</button>
+          <div class="result-box" id="pwdRes">Klik button untuk generate.</div>`
+      },
+      {
+        id: "slug-gen", name: "URL Slug Generator", cat: "Text Tools", desc: "Ubah Judul/Teks menjadi format Slug URL yang SEO Friendly.",
+        render: () => `
+          <div class="form-group"><input type="text" id="slugInp" placeholder="Contoh: Belajar JavaScript untuk Pemula!" oninput="runSlug()"></div>
+          <div class="result-box" id="slugRes">belajar-javascript-untuk-pemula</div>`
+      },
+      {
+        id: "text-reverse", name: "Text Reverser", cat: "Text Tools", desc: "Membalikkan urutan kalimat atau susunan huruf.",
+        render: () => `
+          <div class="form-group"><textarea id="revInp" rows="4" placeholder="Ketik teks..." oninput="runReverse()"></textarea></div>
+          <div class="result-box" id="revRes">...</div>`
+      },
+      {
+        id: "remove-duplicates", name: "Remove Duplicate Lines", cat: "Text Tools", desc: "Hapus baris teks ganda/duplikat secara otomatis.",
+        render: () => `
+          <div class="form-group"><textarea id="dupInp" rows="6" placeholder="Masukkan daftar berbaris..."></textarea></div>
+          <button class="btn" onclick="runRemoveDup()">Hapus Duplikat</button>
+          <div class="result-box" id="dupRes">Hasil...</div>`
+      },
+
+      // --- COLOR TOOLS ---
+      {
+        id: "color-picker", name: "Color Picker & Palette", cat: "Color Tools", desc: "Pilih warna dan dapatkan kode HEX, RGB, serta HSL.",
+        render: () => `
+          <div class="form-group"><label>Pilih Warna</label><input type="color" id="cpVal" value="#2563eb" oninput="runColorPicker()"></div>
+          <div class="result-box" id="cpRes">HEX: #2563EB | RGB: rgb(37, 99, 235)</div>`
+      },
+      {
+        id: "gradient-gen", name: "CSS Gradient Generator", cat: "Color Tools", desc: "Buat efek gradasi warna CSS linear secara visual.",
+        render: () => `
+          <div class="form-row">
+            <div class="form-group" style="flex:1;"><label>Warna 1</label><input type="color" id="gC1" value="#2563eb" oninput="runGrad()"></div>
+            <div class="form-group" style="flex:1;"><label>Warna 2</label><input type="color" id="gC2" value="#9333ea" oninput="runGrad()"></div>
+          </div>
+          <div id="gradPreview" style="height:100px; border-radius:8px; margin-bottom:1rem;"></div>
+          <div class="result-box" id="gradRes">background: linear-gradient(90deg, #2563eb, #9333ea);</div>`
+      },
+      {
+        id: "box-shadow-gen", name: "Box Shadow Generator", cat: "Color Tools", desc: "Generator bayangan elemen CSS3 interaktif.",
+        render: () => `
+          <div class="form-group"><label>Offset Y: <span id="bsYV">10</span>px</label><input type="range" id="bsY" min="-50" max="50" value="10" oninput="runShadow()"></div>
+          <div class="form-group"><label>Blur Radius: <span id="bsBV">15</span>px</label><input type="range" id="bsB" min="0" max="100" value="15" oninput="runShadow()"></div>
+          <div id="bsPreview" style="height:80px; background:var(--bg-card); border-radius:8px; margin:1rem 0; border:1px solid var(--border);"></div>
+          <div class="result-box" id="bsRes">box-shadow: 0px 10px 15px rgba(0,0,0,0.15);</div>`
+      },
+      {
+        id: "glassmorphism-gen", name: "Glassmorphism Generator", cat: "Color Tools", desc: "Generator efek kaca transparansi Frosted Glass CSS.",
+        render: () => `
+          <div class="form-group"><label>Blur: <span id="glassBV">10</span>px</label><input type="range" id="glassB" min="0" max="20" value="10" oninput="runGlass()"></div>
+          <div class="form-group"><label>Opacity: <span id="glassOV">0.2</span></label><input type="range" id="glassO" min="0.05" max="0.9" step="0.05" value="0.2" oninput="runGlass()"></div>
+          <div id="glassBox" style="padding:1.5rem; background:rgba(255,255,255,0.2); backdrop-filter:blur(10px); border-radius:12px; border:1px solid rgba(255,255,255,0.3); margin-bottom:1rem;">
+            Pratinjau Kaca Glassmorphism
+          </div>
+          <div class="result-box" id="glassRes">CSS Code...</div>`
+      },
+
+      // --- DEVELOPER ---
+      {
+        id: "json-formatter", name: "JSON Formatter & Validator", cat: "Developer", desc: "Validasi sintaks dan format rapi struktur JSON.",
+        render: () => `
+          <div class="form-group"><textarea id="jsonInp" rows="6" placeholder='{"name":"John", "age":30}'></textarea></div>
+          <button class="btn" onclick="runJson()">Format JSON</button>
+          <div class="result-box"><pre id="jsonRes">Hasil akan tampil di sini...</pre></div>`
+      },
+      {
+        id: "base64-tool", name: "Base64 Encoder / Decoder", cat: "Developer", desc: "Enkripsi teks biasa menjadi Base64 atau sebaliknya.",
+        render: () => `
+          <div class="form-group"><textarea id="b64Inp" rows="4" placeholder="Ketik teks biasa atau string base64..."></textarea></div>
+          <div class="form-row">
+            <button class="btn" style="flex:1;" onclick="runB64(true)">Encode to Base64</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="runB64(false)">Decode from Base64</button>
+          </div>
+          <div class="result-box" id="b64Res">Hasil...</div>`
+      },
+      {
+        id: "url-encode-decode", name: "URL Encoder / Decoder", cat: "Developer", desc: "Encode karakter khusus untuk format aman URL web.",
+        render: () => `
+          <div class="form-group"><textarea id="urlInp" rows="3" placeholder="https://example.com/query?name=John Doe"></textarea></div>
+          <div class="form-row">
+            <button class="btn" style="flex:1;" onclick="runUrlEnc(true)">Encode URL</button>
+            <button class="btn btn-secondary" style="flex:1;" onclick="runUrlEnc(false)">Decode URL</button>
+          </div>
+          <div class="result-box" id="urlRes">Hasil...</div>`
+      },
+      {
+        id: "uuid-gen", name: "UUID v4 Generator", cat: "Developer", desc: "Buat ID unik acak standar UUID/GUID versi 4.",
+        render: () => `
+          <button class="btn" onclick="runUuid()">Generate New UUID</button>
+          <div class="result-box" id="uuidRes">Klik tombol di atas.</div>`
+      },
+
+      // --- RANDOM TOOLS ---
+      {
+        id: "coin-flip", name: "Coin Flip (Lempar Koin)", cat: "Random", desc: "Simulasi lempar koin secara acak (Gambar/Angka).",
+        render: () => `
+          <div style="text-align:center; padding:1rem;">
+            <h1 id="coinDisplay" style="font-size:3rem; margin-bottom:1rem;">🪙</h1>
+            <button class="btn" onclick="runCoinFlip()">Lempar Koin</button>
+          </div>
+          <div class="result-box" id="coinRes" style="text-align:center;">Siap melempar!</div>`
+      },
+      {
+        id: "dice-roller", name: "Dice Roller (Dadu)", cat: "Random", desc: "Kocok dadu acak 6 sisi untuk permainan.",
+        render: () => `
+          <div style="text-align:center; padding:1rem;">
+            <h1 id="diceDisplay" style="font-size:4rem; margin-bottom:1rem;">🎲</h1>
+            <button class="btn" onclick="runDice()">Kocok Dadu</button>
+          </div>
+          <div class="result-box" id="diceRes" style="text-align:center;">Hasil kocokan dadu.</div>`
+      },
+      {
+        id: "random-picker", name: "Random Picker / Name Draw", cat: "Random", desc: "Pilih satu pemenang acak dari daftar nama.",
+        render: () => `
+          <div class="form-group"><textarea id="pickerInp" rows="5" placeholder="Masukkan daftar nama (pisahkan dengan baris baru)..."></textarea></div>
+          <button class="btn" onclick="runPicker()">Undi Pemenang!</button>
+          <div class="result-box" id="pickerRes">Pemenang akan muncul di sini.</div>`
+      },
+
+      // --- PRODUCTIVITY ---
+      {
+        id: "todo-list", name: "Simple To-Do List", cat: "Productivity", desc: "Catat dan kelola tugas harian Anda (tersimpan di browser).",
+        render: () => `
+          <div class="form-row">
+            <input type="text" id="todoInp" placeholder="Tambah tugas baru...">
+            <button class="btn" onclick="addTodo()">Tambah</button>
+          </div>
+          <ul id="todoList" style="margin-top:1rem; list-style:none; display:flex; flex-direction:column; gap:0.5rem;"></ul>`
+      },
+      {
+        id: "pomodoro-timer", name: "Pomodoro Timer", cat: "Productivity", desc: "Timer fokus kerja 25 menit dan waktu istirahat 5 menit.",
+        render: () => `
+          <div style="text-align:center;">
+            <h1 id="pomoDisplay" style="font-size:3.5rem; margin:1rem 0;">25:00</h1>
+            <div class="form-row" style="justify-content:center;">
+              <button class="btn" onclick="startPomo()">Start</button>
+              <button class="btn btn-secondary" onclick="pausePomo()">Pause</button>
+              <button class="btn btn-secondary" onclick="resetPomo()">Reset</button>
+            </div>
+          </div>`
+      },
+      {
+        id: "stopwatch-tool", name: "Stopwatch", cat: "Productivity", desc: "Pengukur waktu presisi beserta penghitung Lap.",
+        render: () => `
+          <div style="text-align:center;">
+            <h1 id="swDisplay" style="font-size:3.5rem; margin:1rem 0;">00:00.0</h1>
+            <div class="form-row" style="justify-content:center;">
+              <button class="btn" onclick="startSw()">Start</button>
+              <button class="btn btn-secondary" onclick="stopSw()">Stop</button>
+              <button class="btn btn-secondary" onclick="resetSw()">Reset</button>
+            </div>
+          </div>`
+      },
+
+      // --- MINI GAMES ---
+      {
+        id: "game-tictactoe", name: "Tic Tac Toe Game", cat: "Mini Games", desc: "Permainan klasik Tic Tac Toe 2 Player.",
+        render: () => `
+          <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; max-width:240px; margin:0 auto;" id="tttBoard"></div>
+          <div style="text-align:center; margin-top:1rem;">
+            <button class="btn btn-secondary" onclick="resetTTT()">Reset Game</button>
+          </div>
+          <div class="result-box" id="tttStatus" style="text-align:center;">Giliran Player: X</div>`
+      }
+    ];
+
+    /* ==========================================================================
+       CORE ROUTING, STATE & EVENT ENGINE
+       ========================================================================== */
+    let currentCategory = "Semua";
+
+    function init() {
+      document.getElementById("toolCountBadge").innerText = `${tools.length} Tools`;
+      renderCategories();
+      renderTools();
+      setupShortcuts();
+    }
+
+    function renderCategories() {
+      const container = document.getElementById("categoryList");
+      container.innerHTML = categories.map(cat => {
+        const count = cat === "Semua" ? tools.length : 
+                      cat === "Favorit" ? favorites.length : 
+                      tools.filter(t => t.cat === cat).length;
+        return `
+          <button class="cat-btn ${cat === currentCategory ? 'active' : ''}" onclick="selectCategory('${cat}')">
+            <span>${cat}</span>
+            <span style="font-size:0.75rem; opacity:0.7;">${count}</span>
+          </button>`;
+      }).join('');
+    }
+
+    function selectCategory(cat) {
+      currentCategory = cat;
+      document.getElementById("currentCategoryTitle").innerText = cat;
+      renderCategories();
+      renderTools();
+      closeWorkspace();
+    }
+
+    function toggleFavorite(e, id) {
+      e.stopPropagation();
+      if (favorites.includes(id)) {
+        favorites = favorites.filter(favId => favId !== id);
+      } else {
+        favorites.push(id);
+      }
+      localStorage.setItem('omni_favs', JSON.stringify(favorites));
+      renderCategories();
+      renderTools();
+    }
+
+    function renderTools() {
+      const search = document.getElementById("searchInput").value.toLowerCase();
+      const grid = document.getElementById("dashboardView");
+      
+      const filtered = tools.filter(t => {
+        const isFav = favorites.includes(t.id);
+        const matchesCat = (currentCategory === "Semua") || 
+                           (currentCategory === "Favorit" && isFav) || 
+                           (t.cat === currentCategory);
+        const matchesSearch = t.name.toLowerCase().includes(search) || t.desc.toLowerCase().includes(search);
+        return matchesCat && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `<p style="grid-column: 1/-1; color: var(--text-muted);">Tidak ada tool yang ditemukan.</p>`;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(t => {
+        const isFav = favorites.includes(t.id);
+        return `
+          <div class="tool-card" onclick="openTool('${t.id}')">
+            <div>
+              <h3>
+                ${t.name}
+                <span onclick="toggleFavorite(event, '${t.id}')" style="cursor:pointer;">${isFav ? '★' : '☆'}</span>
+              </h3>
+              <p>${t.desc}</p>
+            </div>
+            <span style="font-size:0.7rem; color:var(--accent); font-weight:600;">${t.cat}</span>
+          </div>`;
+      }).join('');
+    }
+
+    function filterTools() { renderTools(); }
+
+    function openTool(id) {
+      const tool = tools.find(t => t.id === id);
+      if(!tool) return;
+
+      document.getElementById("dashboardView").style.display = "none";
+      const ws = document.getElementById("workspaceView");
+      ws.classList.add("active");
+      
+      document.getElementById("toolTitle").innerText = tool.name;
+      document.getElementById("toolInteractiveArea").innerHTML = tool.render();
+
+      // Tool Auto-initializers
+      if(id === 'todo-list') renderTodos();
+      if(id === 'game-tictactoe') initTTT();
+      if(id === 'glassmorphism-gen') runGlass();
+      if(id === 'box-shadow-gen') runShadow();
+    }
+
+    function closeWorkspace() {
+      document.getElementById("dashboardView").style.display = "grid";
+      document.getElementById("workspaceView").classList.remove("active");
+      if(swInterval) clearInterval(swInterval);
+      if(pomoInterval) clearInterval(pomoInterval);
+    }
+
+    function toggleTheme() {
+      const isDark = document.body.getAttribute("data-theme") === "dark";
+      document.body.setAttribute("data-theme", isDark ? "light" : "dark");
+    }
+
+    function setupShortcuts() {
+      window.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === '/') {
+          e.preventDefault();
+          document.getElementById('searchInput').focus();
+        }
+      });
+    }
+
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text);
+      alert("Hasil berhasil disalin ke clipboard!");
+    }
+
+    /* ==========================================================================
+       LOGIKA IMPLEMETANSI BISNIS UNTUK TIAP TOOLS
+       ========================================================================== */
+    // Calc Standard
+    let calcVal = "";
+    function calcInput(v) {
+      if(v === 'C') calcVal = "";
+      else calcVal += v;
+      document.getElementById("stdCalcDisplay").value = calcVal || "0";
+    }
+    function calcExec() {
+      try { calcVal = eval(calcVal).toString(); } catch(e) { calcVal = "Error"; }
+      document.getElementById("stdCalcDisplay").value = calcVal;
+    }
+
+    // BMI
+    function runBmi() {
+      const w = parseFloat(document.getElementById("bmiW").value);
+      const h = parseFloat(document.getElementById("bmiH").value) / 100;
+      if (!w || !h) return alert("Isi data dengan benar!");
+      const bmi = (w / (h * h)).toFixed(1);
+      let status = bmi < 18.5 ? "Kurus" : bmi < 25 ? "Normal" : bmi < 30 ? "Gemuk" : "Obesitas";
+      document.getElementById("bmiRes").innerHTML = `BMI Anda: <b>${bmi}</b> (${status})`;
+    }
+
+    // Age
+    function runAge() {
+      const dob = new Date(document.getElementById("ageDob").value);
+      if(isNaN(dob)) return alert("Pilih tanggal!");
+      const diff = new Date(Date.now() - dob.getTime());
+      document.getElementById("ageRes").innerText = `Umur Anda: ${Math.abs(diff.getUTCFullYear() - 1970)} Tahun ${diff.getUTCMonth()} Bulan.`;
+    }
+
+    // Discount
+    function runDiscount() {
+      const p = parseFloat(document.getElementById("discP").value);
+      const d = parseFloat(document.getElementById("discD").value);
+      if(!p || !d) return alert("Isi data!");
+      const cut = p * (d / 100);
+      document.getElementById("discRes").innerHTML = `Potongan: <b>Rp ${cut.toLocaleString()}</b> | Total: <b>Rp ${(p - cut).toLocaleString()}</b>`;
+    }
+
+    // Split Bill
+    function runSplitBill() {
+      const t = parseFloat(document.getElementById("sbTotal").value);
+      const p = parseInt(document.getElementById("sbPeople").value);
+      const tip = parseFloat(document.getElementById("sbTip").value) || 0;
+      if(!t || !p) return;
+      const total = t + (t * (tip/100));
+      document.getElementById("sbRes").innerText = `Per orang bayar: Rp ${(total/p).toLocaleString()}`;
+    }
+
+    // Percent
+    function runPercent() {
+      const v1 = parseFloat(document.getElementById("pVal1").value);
+      const v2 = parseFloat(document.getElementById("pVal2").value);
+      if(!v1 || !v2) return;
+      document.getElementById("pRes").innerText = `Hasil: ${(v1/100) * v2}`;
+    }
+
+    // Length Conv
+    function runLength() {
+      const v = parseFloat(document.getElementById("lVal").value) || 0;
+      const from = document.getElementById("lFrom").value;
+      const to = document.getElementById("lTo").value;
+      const rates = { m: 1, km: 0.001, cm: 100, inch: 39.3701, ft: 3.28084 };
+      const res = (v / rates[from]) * rates[to];
+      document.getElementById("lRes").innerText = `${v} ${from} = ${res.toFixed(4)} ${to}`;
+    }
+
+    // Temp Conv
+    function runTemp() {
+      const c = parseFloat(document.getElementById("tCel").value) || 0;
+      document.getElementById("tRes").innerText = `Fahrenheit: ${(c * 9/5) + 32}°F | Kelvin: ${c + 273.15}K`;
+    }
+
+    // Num Base Conv
+    function runNumBase() {
+      const n = parseInt(document.getElementById("numDec").value) || 0;
+      document.getElementById("numBaseRes").innerText = `Biner: ${n.toString(2)} | Hex: #${n.toString(16).toUpperCase()}`;
+    }
+
+    // Byte Conv
+    function runByte() {
+      const mb = parseFloat(document.getElementById("mbVal").value) || 0;
+      document.getElementById("byteRes").innerText = `Bytes: ${(mb * 1048576).toLocaleString()} | KB: ${(mb * 1024).toLocaleString()} | GB: ${(mb / 1024).toFixed(3)}`;
+    }
+
+    // Roman Conv
+    function runRoman() {
+      let num = parseInt(document.getElementById("romVal").value);
+      if(!num || num > 3999) return;
+      const lookup = {M:1000,CM:900,D:500,CD:400,C:100,XC:90,L:50,XL:40,X:10,IX:9,V:5,IV:4,I:1};
+      let roman = '';
+      for (let i in lookup) {
+        while (num >= lookup[i]) { roman += i; num -= lookup[i]; }
+      }
+      document.getElementById("romRes").innerText = `Romawi: ${roman}`;
+    }
+
+    // Word Counter
+    function runWc() {
+      const txt = document.getElementById("wcInput").value.trim();
+      const words = txt ? txt.split(/\s+/).length : 0;
+      document.getElementById("wcRes").innerText = `Kata: ${words} | Karakter: ${txt.length} | Est. Baca: ${Math.ceil(words/200)} mtk`;
+    }
+
+    // Case Converter
+    function runCase(type) {
+      const el = document.getElementById("caseInput");
+      if(type==='upper') el.value = el.value.toUpperCase();
+      if(type==='lower') el.value = el.value.toLowerCase();
+      if(type==='title') el.value = el.value.toLowerCase().replace(/(?:^|\s)\w/g, m => m.toUpperCase());
+      if(type==='camel') el.value = el.value.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+    }
+
+    // Lorem Ipsum
+    function runLorem() {
+      const count = parseInt(document.getElementById("loremCount").value) || 1;
+      const dummy = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. ";
+      const res = Array(count).fill(dummy).join("\n\n");
+      document.getElementById("loremRes").innerHTML = `<button class="copy-btn" onclick="copyToClipboard(\`${res}\`)">Copy</button>${res}`;
+    }
+
+    // Password Gen
+    function runPwdGen() {
+      const len = document.getElementById("pwdLen").value;
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()";
+      let res = "";
+      for (let i = 0; i < len; i++) res += charset.charAt(Math.floor(Math.random() * charset.length));
+      document.getElementById("pwdRes").innerHTML = `<button class="copy-btn" onclick="copyToClipboard('${res}')">Copy</button><b>${res}</b>`;
+    }
+
+    // Slug Gen
+    function runSlug() {
+      const txt = document.getElementById("slugInp").value;
+      const slug = txt.toLowerCase().replace(/[^a-z0-9 -]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-');
+      document.getElementById("slugRes").innerText = slug;
+    }
+
+    // Reverse Text
+    function runReverse() {
+      const txt = document.getElementById("revInp").value;
+      document.getElementById("revRes").innerText = txt.split('').reverse().join('');
+    }
+
+    // Remove Duplicates
+    function runRemoveDup() {
+      const txt = document.getElementById("dupInp").value;
+      const unique = [...new Set(txt.split('\n'))].join('\n');
+      document.getElementById("dupRes").innerText = unique;
+    }
+
+    // Color Picker
+    function runColorPicker() {
+      const hex = document.getElementById("cpVal").value;
+      document.getElementById("cpRes").innerText = `HEX: ${hex.toUpperCase()}`;
+    }
+
+    // Gradient Gen
+    function runGrad() {
+      const c1 = document.getElementById("gC1").value;
+      const c2 = document.getElementById("gC2").value;
+      const code = `background: linear-gradient(90deg, ${c1}, ${c2});`;
+      document.getElementById("gradPreview").style.background = `linear-gradient(90deg, ${c1}, ${c2})`;
+      document.getElementById("gradRes").innerText = code;
+    }
+
+    // Box Shadow
+    function runShadow() {
+      const y = document.getElementById("bsY").value;
+      const b = document.getElementById("bsB").value;
+      document.getElementById("bsYV").innerText = y;
+      document.getElementById("bsBV").innerText = b;
+      const code = `box-shadow: 0px ${y}px ${b}px rgba(0,0,0,0.2);`;
+      document.getElementById("bsPreview").style.boxShadow = `0px ${y}px ${b}px rgba(0,0,0,0.2)`;
+      document.getElementById("bsRes").innerText = code;
+    }
+
+    // Glassmorphism
+    function runGlass() {
+      const b = document.getElementById("glassB").value;
+      const o = document.getElementById("glassO").value;
+      document.getElementById("glassBV").innerText = b;
+      document.getElementById("glassOV").innerText = o;
+      const code = `background: rgba(255, 255, 255, ${o});\nbackdrop-filter: blur(${b}px);`;
+      const box = document.getElementById("glassBox");
+      box.style.background = `rgba(255, 255, 255, ${o})`;
+      box.style.backdropFilter = `blur(${b}px)`;
+      document.getElementById("glassRes").innerText = code;
+    }
+
+    // JSON Formatter
+    function runJson() {
+      try {
+        const obj = JSON.parse(document.getElementById("jsonInp").value);
+        document.getElementById("jsonRes").innerText = JSON.stringify(obj, null, 2);
+      } catch(e) { document.getElementById("jsonRes").innerText = "JSON Tidak Valid!"; }
+    }
+
+    // Base64
+    function runB64(encode) {
+      const inp = document.getElementById("b64Inp").value;
+      try {
+        const res = encode ? btoa(inp) : atob(inp);
+        document.getElementById("b64Res").innerText = res;
+      } catch(e) { document.getElementById("b64Res").innerText = "Format Error!"; }
+    }
+
+    // URL Encoder
+    function runUrlEnc(encode) {
+      const inp = document.getElementById("urlInp").value;
+      document.getElementById("urlRes").innerText = encode ? encodeURIComponent(inp) : decodeURIComponent(inp);
+    }
+
+    // UUID
+    function runUuid() {
+      const uuid = 'xxxx-xxxx-4xxx-yxxx-xxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random() * 16 | 0, v = c == 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+      document.getElementById("uuidRes").innerText = uuid;
+    }
+
+    // Random Coin
+    function runCoinFlip() {
+      const res = Math.random() < 0.5 ? "Kepala (Gambar)" : "Ekor (Angka)";
+      document.getElementById("coinRes").innerText = `Hasil: ${res}`;
+    }
+
+    // Dice
+    function runDice() {
+      const res = Math.floor(Math.random() * 6) + 1;
+      document.getElementById("diceRes").innerText = `Dadu Menunjukkan Angka: ${res}`;
+    }
+
+    // Random Picker
+    function runPicker() {
+      const list = document.getElementById("pickerInp").value.split('\n').filter(Boolean);
+      if(!list.length) return alert("Masukkan minimal 1 nama!");
+      const win = list[Math.floor(Math.random() * list.length)];
+      document.getElementById("pickerRes").innerHTML = `🎉 Pemenang: <b>${win}</b>`;
+    }
+
+    // To-Do List App
+    let todos = JSON.parse(localStorage.getItem('omni_todos') || '[]');
+    function renderTodos() {
+      const el = document.getElementById("todoList");
+      if(!el) return;
+      el.innerHTML = todos.map((t, i) => `
+        <li style="display:flex; justify-content:space-between; background:var(--bg-main); padding:0.5rem; border-radius:4px;">
+          <span>${t}</span>
+          <button style="color:red; border:none; background:none; cursor:pointer;" onclick="delTodo(${i})">✕</button>
+        </li>`).join('');
+    }
+    function addTodo() {
+      const inp = document.getElementById("todoInp");
+      if(!inp.value) return;
+      todos.push(inp.value);
+      localStorage.setItem('omni_todos', JSON.stringify(todos));
+      inp.value = "";
+      renderTodos();
+    }
+    function delTodo(i) {
+      todos.splice(i, 1);
+      localStorage.setItem('omni_todos', JSON.stringify(todos));
+      renderTodos();
+    }
+
+    // Pomodoro Timer
+    let pomoTime = 1500, pomoInterval;
+    function startPomo() {
+      if(pomoInterval) return;
+      pomoInterval = setInterval(() => {
+        pomoTime--;
+        const m = Math.floor(pomoTime/60).toString().padStart(2,'0');
+        const s = (pomoTime%60).toString().padStart(2,'0');
+        document.getElementById("pomoDisplay").innerText = `${m}:${s}`;
+        if(pomoTime <= 0) clearInterval(pomoInterval);
+      }, 1000);
+    }
+    function pausePomo() { clearInterval(pomoInterval); pomoInterval = null; }
+    function resetPomo() { pausePomo(); pomoTime = 1500; document.getElementById("pomoDisplay").innerText = "25:00"; }
+
+    // Stopwatch
+    let swTime = 0, swInterval;
+    function startSw() {
+      if(swInterval) return;
+      swInterval = setInterval(() => {
+        swTime += 100;
+        const m = Math.floor(swTime / 60000).toString().padStart(2,'0');
+        const s = Math.floor((swTime % 60000) / 1000).toString().padStart(2,'0');
+        const ms = Math.floor((swTime % 1000) / 100);
+        document.getElementById("swDisplay").innerText = `${m}:${s}.${ms}`;
+      }, 100);
+    }
+    function stopSw() { clearInterval(swInterval); swInterval = null; }
+    function resetSw() { stopSw(); swTime = 0; document.getElementById("swDisplay").innerText = "00:00.0"; }
+
+    // Tic Tac Toe
+    let tttBoard = Array(9).fill(null), tttTurn = 'X';
+    function initTTT() {
+      const el = document.getElementById("tttBoard");
+      el.innerHTML = tttBoard.map((v, i) => `
+        <button style="height:70px; font-size:1.5rem; font-weight:bold;" onclick="clickTTT(${i})">${v || ''}</button>
+      `).join('');
+    }
+    function clickTTT(i) {
+      if(tttBoard[i]) return;
+      tttBoard[i] = tttTurn;
+      tttTurn = tttTurn === 'X' ? 'O' : 'X';
+      document.getElementById("tttStatus").innerText = `Giliran Player: ${tttTurn}`;
+      initTTT();
+    }
+    function resetTTT() {
+      tttBoard = Array(9).fill(null);
+      tttTurn = 'X';
+      document.getElementById("tttStatus").innerText = `Giliran Player: X`;
+      initTTT();
+    }
+
+    // RUN ON LOAD
+    window.onload = init;
+  </script>
+</body>
+</html>
